@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Travel Decision Matrix</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--tx:#1d2733;--mut:#667085;--bd:#e2ddd2;--ac:#1f6f5c;--bar:#2f8f78;--hi:#e8f3ef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--card:#1d242c;--tx:#e8ecf0;--mut:#9aa6b2;--bd:#2c3640;--ac:#5cc3a8;--bar:#3fa88c;--hi:#1f3a34;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14181d;--card:#1d242c;--tx:#e8ecf0;--mut:#9aa6b2;--bd:#2c3640;--ac:#5cc3a8;--bar:#3fa88c;--hi:#1f3a34;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:16px;margin:0 0 12px}.sub{color:var(--mut);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.w{margin-bottom:12px}.w label{display:flex;justify-content:space-between;font-size:13px}.w b{color:var(--ac)}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.row{display:grid;grid-template-columns:26px 110px 1fr 48px;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:14px}
+.row.top{background:var(--hi)}.rk{color:var(--mut);text-align:right}.track{height:14px;background:var(--bd);border-radius:7px;overflow:hidden}
+.fill{height:100%;background:var(--bar);border-radius:7px;transition:width .3s}.sc{text-align:right;font-weight:600}
+button{font:inherit;background:none;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 12px;cursor:pointer;margin:0 6px 6px 0}
+button:hover{border-color:var(--ac)}.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}th{color:var(--mut);font-weight:600}td:first-child,th:first-child{text-align:left}
+td input{width:44px;font:inherit;text-align:center;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:2px}
+.note{color:var(--mut);font-size:12.5px}
+</style></head><body><main>
+<h1>Travel Decision Matrix</h1>
+<p class="sub">Drag the sliders to set what matters to you; the ranking updates instantly. Edit any score in the table below.</p>
+<div class="grid">
+ <div>
+  <div class="card"><h2>Your priorities</h2><div id="ws"></div>
+   <button id="reset">Reset weights</button>
+   <button data-p="lux">Luxury break</button><button data-p="cul">Culture lover</button><button data-p="val">Budget-savvy</button><button data-p="work">Work + travel</button>
+  </div>
+ </div>
+ <div class="card"><h2>Ranking</h2><div id="rank"></div></div>
+</div>
+<div class="card"><h2>Scores (1–10, higher is better)</h2><div class="wrap"><table id="tbl"></table></div>
+<p class="note">Scores are my subjective judgments for a microfinance CEO travelling from Nairobi, not hard data. Check current visa rules for Kenyan passport holders before deciding.</p></div>
+</main>
+<script>
+const C=["Scenery & nature","Culture & history","Relaxation & luxury","Cost / value","Ease from Nairobi","Safety & health","Microfinance relevance"];
+const D0={"India":[8,10,6,9,8,6,9],"South Africa":[9,7,8,8,10,5,5],"Egypt":[7,10,6,8,9,6,5],"Japan":[9,10,7,6,5,10,4],"Greece":[9,9,9,6,6,8,3],"Nepal":[10,8,5,9,6,7,7],"Italy":[8,10,8,5,6,8,5],"Morocco":[8,9,7,8,5,7,6],"Spain":[8,9,8,6,6,8,3],"France":[8,9,8,4,7,7,6],"Switzerland":[10,6,9,2,6,10,8],"Scotland":[9,7,6,5,5,9,3],"Bahamas":[8,4,10,3,3,6,2]};
+const W0=[20,20,15,15,15,10,5];
+const P={lux:[15,10,35,10,10,15,5],cul:[15,40,5,10,10,15,5],val:[15,15,5,40,15,5,5],work:[10,10,5,10,20,10,35]};
+let W=[...W0],D=JSON.parse(JSON.stringify(D0));
+const $=id=>document.getElementById(id);
+function buildW(){$("ws").innerHTML=C.map((c,i)=>`<div class="w"><label>${c}<b id="v${i}">${W[i]}</b></label><input type="range" min="0" max="50" value="${W[i]}" data-i="${i}"></div>`).join("");
+ $("ws").querySelectorAll("input").forEach(el=>el.oninput=e=>{W[+el.dataset.i]=+el.value;$("v"+el.dataset.i).textContent=el.value;draw()})}
+function score(s){const t=W.reduce((a,b)=>a+b,0)||1;return s.reduce((a,v,i)=>a+v*W[i],0)/t}
+function draw(){const r=Object.entries(D).map(([n,s])=>[n,score(s)]).sort((a,b)=>b[1]-a[1]);
+ $("rank").innerHTML=r.map(([n,s],i)=>`<div class="row ${i<3?"top":""}"><span class="rk">${i+1}</span><span>${n}</span><div class="track"><div class="fill" style="width:${s*10}%"></div></div><span class="sc">${s.toFixed(2)}</span></div>`).join("")}
+function buildT(){$("tbl").innerHTML="<tr><th>Country</th>"+C.map(c=>`<th>${c}</th>`).join("")+"</tr>"+Object.entries(D).map(([n,s])=>`<tr><td>${n}</td>`+s.map((v,i)=>`<td><input type="number" min="1" max="10" value="${v}" data-n="${n}" data-i="${i}"></td>`).join("")+"</tr>").join("");
+ $("tbl").querySelectorAll("input").forEach(el=>el.oninput=()=>{let v=Math.min(10,Math.max(1,+el.value||1));D[el.dataset.n][+el.dataset.i]=v;draw()})}
+$("reset").onclick=()=>{W=[...W0];D=JSON.parse(JSON.stringify(D0));buildW();buildT();draw()};
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{W=[...P[b.dataset.p]];buildW();draw()});
+buildW();buildT();draw();
+</script></body></html>
