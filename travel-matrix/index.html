@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Travel Decision Matrix</title>
+<link rel="stylesheet" href="Travel Decision Matrix.css">
+</head><body><main>
+<h1>Travel Decision Matrix</h1>
+<p class="sub">Drag the sliders to set what matters to you; the ranking updates instantly. Edit any score in the table below.</p>
+<div class="grid">
+ <div>
+  <div class="card"><h2>Your priorities</h2><div id="ws"></div>
+   <button id="reset">Reset weights</button>
+   <button data-p="lux">Luxury break</button><button data-p="cul">Culture lover</button><button data-p="val">Budget-savvy</button><button data-p="work">Work + travel</button>
+  </div>
+ </div>
+ <div class="card"><h2>Ranking</h2><div id="rank"></div></div>
+</div>
+<div class="card"><h2>Scores (1–10, higher is better)</h2><div class="wrap"><table id="tbl"></table></div>
+<p class="note">Scores are my subjective judgments for a microfinance CEO travelling from Nairobi, not hard data. Check current visa rules for Kenyan passport holders before deciding.</p></div>
+</main>
+<script src="Travel Decision Matrix.js"></script>
+</body></html>
